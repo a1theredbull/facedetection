@@ -9,16 +9,16 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 public class FaceDetector {
-	private CascadeClassifier cascade;
+	private CascadeClassifier faceCascade;
 	
-	public FaceDetector(String cascadeFilename) {
-		cascade = new CascadeClassifier(cascadeFilename);
-		
-		if (cascade.empty()) {
-			System.err.println("Could not load cascade. Please check that xml file exists.");
+	public FaceDetector(String faceFilename) {
+		faceCascade = new CascadeClassifier(faceFilename);
+
+		if (faceCascade.empty()) {
+			System.err.println("Could not load cascades. Please check that xml files exist.");
 			return;
 		} else {
-			System.out.println("Face classifier loaded.");
+			System.out.println("Classifiers loaded.");
 		}
 	}
 	
@@ -31,8 +31,7 @@ public class FaceDetector {
 		//convert to grey scale
 		Imgproc.cvtColor(mRgba, mGrey, Imgproc.COLOR_BGR2GRAY);
 		Imgproc.equalizeHist(mGrey, mGrey);
-		cascade.detectMultiScale(mGrey, faces);
-		System.out.println("Detected " + faces.toArray().length + " faces");
+		faceCascade.detectMultiScale(mGrey, faces);
 		for (Rect rect : faces.toArray()) {
 			Point center = new Point(rect.x + rect.width * 0.5, rect.y
 					+ rect.height * 0.5);

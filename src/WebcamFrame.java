@@ -1,5 +1,7 @@
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -23,35 +25,37 @@ public class WebcamFrame {
 		//initialize swing components
 		JFrame frame = new JFrame("CIS 365 Detection");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 800);
 		frame.setVisible(true);
-		frame.setLayout(new FlowLayout());
 		CVPanel dPanel = new CVPanel();
-		//frame.setContentPane(dPanel);
 		BinaryPanel bPanel = new BinaryPanel();
-		frame.setContentPane(bPanel);
+		JPanel contentPane = new JPanel(new GridLayout(2, 0));
+		contentPane.add(dPanel);
+		contentPane.add(bPanel);
+		
+		frame.setContentPane(contentPane);
 		
 		//initialize face detector engine
 		FaceDetector detector = new FaceDetector(
 				"C:/opencv/sources/data/haarcascades/haarcascade_frontalface_alt.xml");
 		
 		//initialize webcam capture
-		Mat webcam_image = new Mat();
+		Mat webcamImage = new Mat();
 		VideoCapture capture = new VideoCapture(0);
 		if (capture.isOpened()) {
 			while (true) {
-				capture.read(webcam_image);
-				if (!webcam_image.empty()) {
-					frame.setSize(webcam_image.width() + 40,
-							webcam_image.height() + 60);
-					// -- 3. Apply the classifier to the captured image
-					webcam_image = detector.detectFaces(webcam_image);
-					// -- 4. Display the image
-					/*dPanel.matToBufferedImage(webcam_image);
-					dPanel.repaint();*/
+				capture.read(webcamImage);
+				if (!webcamImage.empty()) {
+					Imgproc.resize(webcamImage, webcamImage, new Size(400, 300));
+					frame.setSize(webcamImage.width() + 40,
+							webcamImage.height() * 2 + 80);
+					contentPane.setSize(webcamImage.width() + 40,
+							webcamImage.height() * 2 + 60);
+					webcamImage = detector.detectFaces(webcamImage);
+					dPanel.matToBufferedImage(webcamImage);
+					dPanel.repaint();
 					
-					bPanel.imageToBinaryScale(webcam_image);
-					bPanel.matToBufferedImage(webcam_image);
+					bPanel.imageToBinaryScale(webcamImage);
+					bPanel.matToBufferedImage(webcamImage);
 					bPanel.repaint();
 				} else {
 					System.out.println(" --(!) No captured frame -- Break!");
@@ -70,6 +74,10 @@ class CVPanel extends JPanel {
 	
 	public BufferedImage getImage() {
 		return image;
+	}
+	
+	public void setImage(BufferedImage image) {
+		this.image = image;
 	}
 	
 	/**
@@ -105,7 +113,8 @@ class BinaryPanel extends CVPanel {
 	private static final long serialVersionUID = 1L;
 	
 	public boolean imageToBinaryScale(Mat matBGR) {
-		Imgproc.threshold(matBGR, matBGR, 150, 200, 
+		Imgproc.GaussianBlur(matBGR, matBGR, new Size(3,3), 4);
+		Imgproc.threshold(matBGR, matBGR, 160, 200, 
 				Imgproc.THRESH_BINARY_INV);
 		
 		return true;
