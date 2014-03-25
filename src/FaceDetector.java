@@ -10,6 +10,7 @@ import org.opencv.objdetect.CascadeClassifier;
 
 public class FaceDetector {
 	private CascadeClassifier faceCascade;
+	private Rect[] rects;
 	
 	public FaceDetector(String faceFilename) {
 		faceCascade = new CascadeClassifier(faceFilename);
@@ -22,6 +23,10 @@ public class FaceDetector {
 		}
 	}
 	
+	public Rect[] getRects() {
+		return rects;
+	}
+	
 	public Mat detectFaces(Mat inputframe) {
 		Mat mRgba = new Mat();
 		Mat mGrey = new Mat();
@@ -32,7 +37,9 @@ public class FaceDetector {
 		Imgproc.cvtColor(mRgba, mGrey, Imgproc.COLOR_BGR2GRAY);
 		Imgproc.equalizeHist(mGrey, mGrey);
 		faceCascade.detectMultiScale(mGrey, faces);
-		for (Rect rect : faces.toArray()) {
+		rects = faces.toArray();
+		
+		for (Rect rect : rects) {
 			Point center = new Point(rect.x + rect.width * 0.5, rect.y
 					+ rect.height * 0.5);
 			Core.ellipse(mRgba, center, new Size(rect.width * 0.5,
