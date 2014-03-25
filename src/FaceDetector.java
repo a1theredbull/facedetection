@@ -8,7 +8,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
-
 public class FaceDetector {
 	private CascadeClassifier cascade;
 	
@@ -23,7 +22,7 @@ public class FaceDetector {
 		}
 	}
 	
-	public Mat detect(Mat inputframe) {
+	public Mat detectFaces(Mat inputframe) {
 		Mat mRgba = new Mat();
 		Mat mGrey = new Mat();
 		MatOfRect faces = new MatOfRect();

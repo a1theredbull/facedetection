@@ -1,3 +1,4 @@
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -5,7 +6,9 @@ import java.awt.image.DataBufferByte;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
 
 /*
  * Authors: Alexander Chau, Cameron Ohrt
@@ -20,10 +23,13 @@ public class WebcamFrame {
 		//initialize swing components
 		JFrame frame = new JFrame("CIS 365 Detection");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 400);
+		frame.setSize(400, 800);
 		frame.setVisible(true);
-		DetectionPanel dPanel = new DetectionPanel();
-		frame.setContentPane(dPanel);
+		frame.setLayout(new FlowLayout());
+		CVPanel dPanel = new CVPanel();
+		//frame.setContentPane(dPanel);
+		BinaryPanel bPanel = new BinaryPanel();
+		frame.setContentPane(bPanel);
 		
 		//initialize face detector engine
 		FaceDetector detector = new FaceDetector(
@@ -39,12 +45,14 @@ public class WebcamFrame {
 					frame.setSize(webcam_image.width() + 40,
 							webcam_image.height() + 60);
 					// -- 3. Apply the classifier to the captured image
-					webcam_image = detector.detect(webcam_image);
+					webcam_image = detector.detectFaces(webcam_image);
 					// -- 4. Display the image
-					dPanel.MatToBufferedImage(webcam_image); // We could look
-																// at the
-																// error...
-					dPanel.repaint();
+					/*dPanel.matToBufferedImage(webcam_image);
+					dPanel.repaint();*/
+					
+					bPanel.imageToBinaryScale(webcam_image);
+					bPanel.matToBufferedImage(webcam_image);
+					bPanel.repaint();
 				} else {
 					System.out.println(" --(!) No captured frame -- Break!");
 					break;
@@ -56,9 +64,13 @@ public class WebcamFrame {
 }
 
 //converts each frame to buffered images for analysis
-class DetectionPanel extends JPanel {
+class CVPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private BufferedImage image;
+	
+	public BufferedImage getImage() {
+		return image;
+	}
 	
 	/**
 	 * Converts/writes a Mat into a BufferedImage.
@@ -67,7 +79,7 @@ class DetectionPanel extends JPanel {
 	 *            Mat of type CV_8UC3 or CV_8UC1
 	 * @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY
 	 */
-	public boolean MatToBufferedImage(Mat matBGR) {
+	public boolean matToBufferedImage(Mat matBGR) {
 		int width = matBGR.width(), height = matBGR.height(), channels = matBGR
 				.channels();
 		byte[] sourcePixels = new byte[width * height * channels];
@@ -86,5 +98,16 @@ class DetectionPanel extends JPanel {
 			return;
 		g.drawImage(this.image, 10, 10, this.image.getWidth(),
 				this.image.getHeight(), null);
+	}
+}
+
+class BinaryPanel extends CVPanel {
+	private static final long serialVersionUID = 1L;
+	
+	public boolean imageToBinaryScale(Mat matBGR) {
+		Imgproc.threshold(matBGR, matBGR, 150, 200, 
+				Imgproc.THRESH_BINARY_INV);
+		
+		return true;
 	}
 }
