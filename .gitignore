@@ -1,0 +1,8 @@
+*.class
+*.jar
+*.war
+*.ear
+*.lock
+*.DS_Store
+*.swp
+*.out
