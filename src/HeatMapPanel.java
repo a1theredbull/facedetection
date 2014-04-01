@@ -7,6 +7,14 @@ import java.util.Random;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
+/*
+ * Authors: Alexander Chau, Cameron Ohrt
+ * CIS 365 Artificial Intelligence
+ * Project 3 - OpenCV
+ * 
+ * This class encapsulates a heat map Swing panel.
+ */
+
 
 public class HeatMapPanel extends CVPanel {
 	private static final long serialVersionUID = 1L;
@@ -58,12 +66,12 @@ public class HeatMapPanel extends CVPanel {
 		this.detectedFaces = new ArrayList<Rect>(Arrays.asList(detectedFaces));
 	}
 	
+	//find the closest cell to a point
 	private HeatEntry getClosestCellColor(int x, int y) {
 		int cellX = x / cellWidth;
 		int cellY = y / cellHeight;
 
-		HeatEntry entry = new HeatEntry(grid[cellX][cellY], cellX, cellY);
-		return entry;
+		return new HeatEntry(grid[cellX][cellY], cellX, cellY);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -91,21 +99,17 @@ public class HeatMapPanel extends CVPanel {
 	}
 	
 	public Color getDarkerShade(Color color) {
-		int darkR = color.getRed() - 3;
-		int darkG = color.getGreen() - 3;
-		int darkB = color.getBlue() - 3;
+		int darkR = color.getRed() - 2;
+		int darkG = color.getGreen() - 2;
+		int darkB = color.getBlue() - 2;
 		darkR = darkR >= 0 ? darkR : 0;
 		darkG = darkG >= 0 ? darkG : 0;
 		darkB = darkB >= 0 ? darkB : 0;
 		
 		return new Color(darkR, darkG, darkB);
 	}
-	
-	public Color getRandomLightColor() {
-		return new Color(Color.HSBtoRGB((float) Math.random(), 
-				(float) Math.random(), 0.5F + ((float) Math.random())/2F));
-	}
-	
+
+	// represents a cell keeping track of color and x, y coordinate
 	public class HeatEntry {
 		public Color color;
 		public int cellX;

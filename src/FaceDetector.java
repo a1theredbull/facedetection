@@ -8,11 +8,21 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
+/*
+ * Authors: Alexander Chau, Cameron Ohrt
+ * CIS 365 Artificial Intelligence
+ * Project 3 - OpenCV
+ * 
+ * This class uses a Haar Cascade to detect faces.
+ */
+
+
 public class FaceDetector {
 	private CascadeClassifier faceCascade;
 	private Rect[] rects;
 	
 	public FaceDetector(String faceFilename) {
+		//load cascade
 		faceCascade = new CascadeClassifier(faceFilename);
 
 		if (faceCascade.empty()) {
@@ -27,6 +37,7 @@ public class FaceDetector {
 		return rects;
 	}
 	
+	// face detection
 	public Mat detectFaces(Mat inputframe) {
 		Mat mRgba = new Mat();
 		Mat mGrey = new Mat();

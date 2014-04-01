@@ -24,6 +24,8 @@ import org.opencv.imgproc.Imgproc;
  * Authors: Alexander Chau, Cameron Ohrt
  * CIS 365 Artificial Intelligence
  * Project 3 - OpenCV
+ * 
+ * This class generates the frame components (webcam, graph, etc).
  */
 
 public class WebcamFrame {
@@ -78,7 +80,7 @@ public class WebcamFrame {
 	}
 }
 
-//converts each frame to buffered images for analysis
+//represents a class that can take each Mat captured to buffered images for analysis
 class CVPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private BufferedImage image;
@@ -120,6 +122,7 @@ class CVPanel extends JPanel {
 	}
 }
 
+//helper to generate Mat images to gray scale
 class BinaryImageHelper extends CVPanel {
 	private static final long serialVersionUID = 1L;
 	
