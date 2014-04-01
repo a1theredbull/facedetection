@@ -11,6 +11,8 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -33,42 +35,39 @@ public class WebcamFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		CVPanel dPanel = new CVPanel();
-		BinaryPanel bPanel = new BinaryPanel();
-		TrackPanel tPanel = new TrackPanel();
+		HeatMapPanel hPanel = new HeatMapPanel(4, 4, 400, 300);
 		
-		JPanel contentPane = new JPanel(new GridLayout(2, 1));
+		JPanel contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);
-		contentPane.add(bPanel);
-		contentPane.add(tPanel);
+		contentPane.add(hPanel);
 		
 		frame.setContentPane(contentPane);
+		frame.getContentPane().setBackground(Color.WHITE);
 		
 		//initialize face detector engine
 		FaceDetector detector = new FaceDetector(
-				"C:/opencv/sources/data/haarcascades/haarcascade_mcs_nose.xml");
+				"C:/opencv/sources/data/haarcascades/haarcascade_frontalface_alt.xml");
 		
 		//initialize webcam capture
 		Mat webcamImage = new Mat();
 		VideoCapture capture = new VideoCapture(0);
 		
 		if (capture.isOpened()) {
+			contentPane.setSize(400 * 2 + 60,
+					300 * 2 + 60);
+			frame.setSize(contentPane.getSize());
+			
 			while (true) {
 				capture.read(webcamImage);
 				if (!webcamImage.empty()) {
 					Imgproc.resize(webcamImage, webcamImage, new Size(400, 300));
-					contentPane.setSize(webcamImage.width() * 2 + 60,
-							webcamImage.height() * 2 + 60);
-					frame.setSize(contentPane.getSize());
+					Core.flip(webcamImage, webcamImage, 1);
 					webcamImage = detector.detectFaces(webcamImage);
 					dPanel.matToBufferedImage(webcamImage);
 					dPanel.repaint();
 					
-					bPanel.imageToBinaryScale(webcamImage);
-					bPanel.matToBufferedImage(webcamImage);
-					bPanel.repaint();
-					
-					tPanel.setRects(detector.getRects());
-					tPanel.paintComponent(tPanel.getGraphics());
+					hPanel.setDetectedFaces(detector.getRects());
+					hPanel.paintComponent(hPanel.getGraphics());
 				} else {
 					System.out.println("Can't find captured frame.");
 					break;
@@ -121,10 +120,10 @@ class CVPanel extends JPanel {
 	}
 }
 
-class BinaryPanel extends CVPanel {
+class BinaryImageHelper extends CVPanel {
 	private static final long serialVersionUID = 1L;
 	
-	public boolean imageToBinaryScale(Mat matBGR) {
+	public static boolean imageToBinaryScale(Mat matBGR) {
 		Imgproc.GaussianBlur(matBGR, matBGR, new Size(3,3), 4);
 		Imgproc.threshold(matBGR, matBGR, 30, 255, 
 				Imgproc.THRESH_BINARY_INV);
@@ -132,88 +131,3 @@ class BinaryPanel extends CVPanel {
 		return true;
 	}
 }
-
-class TrackPanel extends JPanel {
-	private static final long serialVersionUID = 1L;
-	private ArrayList<ColoredRect> coloredRects = new ArrayList<ColoredRect>();
-	private ArrayList<Rect> rects;
-	
-	//number of times a face must be detected before confirmation
-	private int comboConfirmation = 0;
-	
-	public void setRects(Rect[] rects) {
-		this.rects = new ArrayList<Rect>(Arrays.asList(rects));
-	}
-	
-	public void paintComponent(Graphics g) {		
-		if(rects == null) return;
-		
-		for(int i = 0, size = rects.size(); i < size; i++) {
-			Rect rect = rects.get(i);
-			Color drawColor = null;
-			
-			Point center = new Point(rect.x + rect.width * 0.5, rect.y
-					+ rect.height * 0.5);
-			
-			if(i >= coloredRects.size()) {
-				comboConfirmation++;
-				
-				if(comboConfirmation > 20) {
-					Color newColor = getRandomColor();
-					drawColor = newColor;
-					coloredRects.add(new ColoredRect(center, newColor));
-					comboConfirmation = 0;
-				}
-			} else {
-				drawColor = getMinDistanceColor(center);
-			}
-			
-			if(drawColor != null) {
-				g.setColor(drawColor);
-				g.fillOval((int)Math.round(center.x), (int)Math.round(center.y), 
-						rect.width / 3, rect.height / 3);
-			}
-		}
-	}
-	
-	public Color getRandomColor() {
-		Random rand = new Random();
-		
-		float r = rand.nextFloat();
-		float g = rand.nextFloat();
-		float b = rand.nextFloat();
-		
-		return new Color(r, g, b);
-	}
-	
-	//finds the color of the closest previous point registered
-	public Color getMinDistanceColor(Point p) {
-		double minDistance = Integer.MAX_VALUE;
-		double distance;
-		Point center;
-		Color minDistanceColor = new Color(0,0,0);
-		
-		for(ColoredRect cRect : coloredRects) {
-			center = cRect.center;
-			distance = Math.sqrt((p.x-center.x)*(p.x-center.x) + 
-					(p.y-center.y)*(p.y-center.y));
-			if(distance < minDistance) {
-				minDistance = distance;
-				minDistanceColor = cRect.color;
-			}
-		}
-		
-		return minDistanceColor;
-	}
-	
-	class ColoredRect {
-		public Point center;
-		public Color color;
-		
-		public ColoredRect(Point center, Color color) {
-			this.center = center;
-			this.color = color;
-		}
-	}
-}
-
