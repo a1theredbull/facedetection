@@ -15,7 +15,6 @@ import org.opencv.core.Rect;
  * This class encapsulates a heat map Swing panel.
  */
 
-
 public class HeatMapPanel extends CVPanel {
 	private static final long serialVersionUID = 1L;
 	
@@ -99,9 +98,9 @@ public class HeatMapPanel extends CVPanel {
 	}
 	
 	public Color getDarkerShade(Color color) {
-		int darkR = color.getRed() - 2;
-		int darkG = color.getGreen() - 2;
-		int darkB = color.getBlue() - 2;
+		int darkR = color.getRed() - Settings.HEAT_FACTOR;
+		int darkG = color.getGreen() - Settings.HEAT_FACTOR;
+		int darkB = color.getBlue() - Settings.HEAT_FACTOR;
 		darkR = darkR >= 0 ? darkR : 0;
 		darkG = darkG >= 0 ? darkG : 0;
 		darkB = darkB >= 0 ? darkB : 0;

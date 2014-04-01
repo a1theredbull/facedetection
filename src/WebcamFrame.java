@@ -37,7 +37,8 @@ public class WebcamFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		CVPanel dPanel = new CVPanel();
-		HeatMapPanel hPanel = new HeatMapPanel(4, 4, 400, 300);
+		HeatMapPanel hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
+				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT);
 		
 		JPanel contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);
@@ -55,14 +56,15 @@ public class WebcamFrame {
 		VideoCapture capture = new VideoCapture(0);
 		
 		if (capture.isOpened()) {
-			contentPane.setSize(400 * 2 + 60,
-					300 * 2 + 60);
+			contentPane.setSize(Settings.PANEL_WIDTH * 2 + 60,
+					Settings.PANEL_HEIGHT * 2 + 60);
 			frame.setSize(contentPane.getSize());
 			
 			while (true) {
 				capture.read(webcamImage);
 				if (!webcamImage.empty()) {
-					Imgproc.resize(webcamImage, webcamImage, new Size(400, 300));
+					Imgproc.resize(webcamImage, webcamImage, 
+							new Size(Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT));
 					Core.flip(webcamImage, webcamImage, 1);
 					webcamImage = detector.detectFaces(webcamImage);
 					dPanel.matToBufferedImage(webcamImage);
