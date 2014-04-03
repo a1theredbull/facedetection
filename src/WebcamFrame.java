@@ -7,8 +7,10 @@ import java.awt.image.DataBufferByte;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.jzy3d.maths.Coord3d;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -32,10 +34,13 @@ public class WebcamFrame {
 		CVPanel dPanel = new CVPanel();
 		HeatMapPanel hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
 				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT, Settings.HEAT_FACTOR);
+		Coord3d[] defaultCoord = { new Coord3d(0,0,0) };
+		GraphPanel gPanel = new GraphPanel(defaultCoord);
 		
 		JPanel contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);
 		contentPane.add(hPanel);
+		//contentPane.add(gPanel.initChart());
 		
 		frame.setContentPane(contentPane);
 		frame.getContentPane().setBackground(Color.WHITE);
@@ -63,8 +68,12 @@ public class WebcamFrame {
 					dPanel.matToBufferedImage(webcamImage);
 					dPanel.repaint();
 					
-					hPanel.setDetectedFaces(detector.getRects());
+					Rect[] rects = detector.getRects();
+					
+					hPanel.setDetectedFaces(rects);
 					hPanel.paintComponent(hPanel.getGraphics());
+					
+					gPanel.setPoints(gPanel.convertRectsToCoord3d(rects));
 				} else {
 					System.out.println("Can't find captured frame.");
 					break;
