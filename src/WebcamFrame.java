@@ -1,21 +1,14 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -38,7 +31,7 @@ public class WebcamFrame {
 		frame.setVisible(true);
 		CVPanel dPanel = new CVPanel();
 		HeatMapPanel hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
-				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT);
+				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT, Settings.HEAT_FACTOR);
 		
 		JPanel contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);

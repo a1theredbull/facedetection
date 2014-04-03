@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -25,17 +24,21 @@ public class HeatMapPanel extends CVPanel {
 	private int dimensionWidth, dimensionHeight;
 	//pixel dimensions of cells
 	private int cellWidth, cellHeight;
+	//speed in which cells darken
+	private int heatFactor;
 	
 	private ArrayList<Rect> detectedFaces;
 	
 	public HeatMapPanel(int gridWidth, int gridHeight, 
-			int dimensionWidth, int dimensionHeight) {
+			int dimensionWidth, int dimensionHeight,
+			int heatFactor) {
 		this.gridWidth = gridWidth;
 		this.gridHeight = gridHeight;
 		this.dimensionWidth = dimensionWidth;
 		this.dimensionHeight = dimensionHeight;
 		this.cellWidth = (int) Math.floor(dimensionWidth / gridWidth);
 		this.cellHeight = (int) Math.floor(dimensionHeight / gridHeight);
+		this.heatFactor = heatFactor;
 		
 		grid = new Color[gridWidth][gridHeight];
 		for(int i = 0; i < gridWidth; i++) {
@@ -98,9 +101,9 @@ public class HeatMapPanel extends CVPanel {
 	}
 	
 	public Color getDarkerShade(Color color) {
-		int darkR = color.getRed() - Settings.HEAT_FACTOR;
-		int darkG = color.getGreen() - Settings.HEAT_FACTOR;
-		int darkB = color.getBlue() - Settings.HEAT_FACTOR;
+		int darkR = color.getRed() - heatFactor;
+		int darkG = color.getGreen() - heatFactor;
+		int darkB = color.getBlue() - heatFactor;
 		darkR = darkR >= 0 ? darkR : 0;
 		darkG = darkG >= 0 ? darkG : 0;
 		darkB = darkB >= 0 ? darkB : 0;
