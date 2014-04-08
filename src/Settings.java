@@ -4,7 +4,7 @@ public class Settings {
 	public static final int PANEL_HEIGHT = 300;
 	
 	//heat map settings
-	public static final int HEAT_FACTOR = 10;
-	public static final int X_CELLS = 40;
-	public static final int Y_CELLS = 40;
+	public static final int HEAT_FACTOR = 3;
+	public static final int X_CELLS = 20;
+	public static final int Y_CELLS = 20;
 }

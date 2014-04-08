@@ -64,6 +64,18 @@ public class HeatMapPanel extends CVPanel {
 		return this.dimensionHeight;
 	}
 	
+	public void resetGrid() {
+		for(int i = 0; i < gridWidth; i++) {
+			for(int j = 0; j < gridHeight; j++) {
+				grid[i][j] = new Color(255, 255, 255);
+			}
+		}
+		
+		Graphics g = super.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+	}
+	
 	public void setDetectedFaces(Rect[] detectedFaces) {
 		this.detectedFaces = new ArrayList<Rect>(Arrays.asList(detectedFaces));
 	}

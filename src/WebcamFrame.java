@@ -1,13 +1,18 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -23,27 +28,38 @@ import org.opencv.imgproc.Imgproc;
  * This class generates the frame components (webcam, graph, etc).
  */
 
-public class WebcamFrame {
+public class WebcamFrame extends JFrame {
+	private CVPanel dPanel;
+	private HeatMapPanel hPanel;
+	private GraphPanel gPanel;
+	private JPanel bPanel;
+	
 	public static void main(String[] args) {
 		System.loadLibrary("opencv_java248");
 		
 		//initialize swing components
-		JFrame frame = new JFrame("CIS 365 Detection");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-		CVPanel dPanel = new CVPanel();
-		HeatMapPanel hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
+		WebcamFrame frame = new WebcamFrame("CIS 365 Detection");
+		return;
+	}
+	
+	public WebcamFrame(String title) {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+		dPanel = new CVPanel();
+		hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
 				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT, Settings.HEAT_FACTOR);
 		Coord3d[] defaultCoord = { new Coord3d(0,0,0) };
-		GraphPanel gPanel = new GraphPanel(defaultCoord);
+		gPanel = new GraphPanel(defaultCoord);
+		bPanel = createButtonPanel();
 		
 		JPanel contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);
 		contentPane.add(hPanel);
-		//contentPane.add(gPanel.initChart());
+		contentPane.add((CanvasNewtAwt)gPanel.initChart().getCanvas());
+		contentPane.add(bPanel);
 		
-		frame.setContentPane(contentPane);
-		frame.getContentPane().setBackground(Color.WHITE);
+		setContentPane(contentPane);
+		getContentPane().setBackground(Color.WHITE);
 		
 		//initialize face detector engine
 		FaceDetector detector = new FaceDetector(
@@ -56,7 +72,7 @@ public class WebcamFrame {
 		if (capture.isOpened()) {
 			contentPane.setSize(Settings.PANEL_WIDTH * 2 + 60,
 					Settings.PANEL_HEIGHT * 2 + 60);
-			frame.setSize(contentPane.getSize());
+			setSize(contentPane.getSize());
 			
 			while (true) {
 				capture.read(webcamImage);
@@ -80,7 +96,20 @@ public class WebcamFrame {
 				}
 			}
 		}
-		return;
+	}
+	
+	private JPanel createButtonPanel() {
+		JPanel bPanel = new JPanel();
+		bPanel.setLayout(new GridLayout(1,1));
+		JButton resetButton = new JButton("RESET HEAT MAP");
+		bPanel.add(resetButton);
+		resetButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				hPanel.resetGrid();
+			}
+		});
+		
+		return bPanel;
 	}
 }
 

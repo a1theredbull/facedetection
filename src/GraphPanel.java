@@ -3,22 +3,29 @@ import java.util.Date;
 import javax.swing.JComponent;
 
 import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.primitives.Scatter;
 import org.jzy3d.plot3d.primitives.ScatterMultiColor;
+import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.opencv.core.Rect;
 
 
 public class GraphPanel {
 	Coord3d[] points;
-	ScatterMultiColor scatter;
+	Scatter scatter;
+	long start;
 	
 	public GraphPanel(Coord3d[] points) {
 		this.points = points;
-		scatter = new ScatterMultiColor(points, 
-				new ColorMapper(new ColorMapRainbow(), -0.5f, 0.5f));
+		scatter = new Scatter(points);
+		scatter.setColor(Color.MAGENTA);
+		
+		start = new Date().getTime();
 	}
 	
 	public void setPoints(Coord3d[] newPoints) {
@@ -30,20 +37,19 @@ public class GraphPanel {
 		
 		for(int i = 0; i < rects.length; i++) {
 			long now = new Date().getTime();
+			double timePassed = (double)(now - start) / (double)1000;
+			
 			coordinates[i] = new Coord3d((float)rects[i].x, 
-					(float)rects[i].y, (float)now);
+					(float)rects[i].y, (float)timePassed);
 		}
 		
 		return coordinates;
 	}
 	
-	public JComponent initChart() {
-		Chart chart = new Chart("swing");
-		
-		//chart.getAxeLayout().setMainColor(Color.WHITE);
-		chart.getView().setBackgroundColor(Color.BLACK);
+	public Chart initChart() {
+		Chart chart = AWTChartComponentFactory.chart("newt");
 		chart.getScene().add(scatter);
 		
-		return (JComponent) chart.getCanvas();
+		return chart;
 	}
 }
