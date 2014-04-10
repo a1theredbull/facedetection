@@ -29,10 +29,13 @@ import org.opencv.imgproc.Imgproc;
  */
 
 public class WebcamFrame extends JFrame {
+	private JPanel contentPane;
 	private CVPanel dPanel;
 	private HeatMapPanel hPanel;
 	private GraphPanel gPanel;
 	private JPanel bPanel;
+	
+	private Rect[] rects;
 	
 	public static void main(String[] args) {
 		System.loadLibrary("opencv_java248");
@@ -48,15 +51,14 @@ public class WebcamFrame extends JFrame {
 		dPanel = new CVPanel();
 		hPanel = new HeatMapPanel(Settings.X_CELLS, Settings.Y_CELLS, 
 				Settings.PANEL_WIDTH, Settings.PANEL_HEIGHT, Settings.HEAT_FACTOR);
-		Coord3d[] defaultCoord = { new Coord3d(0,0,0) };
-		gPanel = new GraphPanel(defaultCoord);
 		bPanel = createButtonPanel();
+		gPanel = new GraphPanel();
 		
-		JPanel contentPane = new JPanel(new GridLayout(2, 2));
+		contentPane = new JPanel(new GridLayout(2, 2));
 		contentPane.add(dPanel);
 		contentPane.add(hPanel);
-		contentPane.add((CanvasNewtAwt)gPanel.initChart().getCanvas());
 		contentPane.add(bPanel);
+		contentPane.add((CanvasNewtAwt)gPanel.initChart().getCanvas());
 		
 		setContentPane(contentPane);
 		getContentPane().setBackground(Color.WHITE);
@@ -84,12 +86,13 @@ public class WebcamFrame extends JFrame {
 					dPanel.matToBufferedImage(webcamImage);
 					dPanel.repaint();
 					
-					Rect[] rects = detector.getRects();
+					rects = detector.getRects();
 					
 					hPanel.setDetectedFaces(rects);
 					hPanel.paintComponent(hPanel.getGraphics());
 					
-					gPanel.setPoints(gPanel.convertRectsToCoord3d(rects));
+					Coord3d[] points = gPanel.convertRectsToCoord3d(rects);
+					gPanel.addPoints(points);
 				} else {
 					System.out.println("Can't find captured frame.");
 					break;
@@ -100,12 +103,24 @@ public class WebcamFrame extends JFrame {
 	
 	private JPanel createButtonPanel() {
 		JPanel bPanel = new JPanel();
-		bPanel.setLayout(new GridLayout(1,1));
-		JButton resetButton = new JButton("RESET HEAT MAP");
-		bPanel.add(resetButton);
-		resetButton.addActionListener(new ActionListener() {
+		bPanel.setLayout(new GridLayout(2,2));
+		JButton resetHeatMapButton = new JButton("RESET HEAT MAP");
+		bPanel.add(resetHeatMapButton);
+		resetHeatMapButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hPanel.resetGrid();
+			}
+		});
+		
+		JButton plotGraph = new JButton("PLOT GRAPH");
+		bPanel.add(plotGraph);
+		plotGraph.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				contentPane.remove(3);
+				CanvasNewtAwt graphCanvas = (CanvasNewtAwt)
+						gPanel.initChart().getCanvas();
+				contentPane.add(graphCanvas);
+				setVisible(true); //graph only shows with this...(wtf swing)
 			}
 		});
 		
@@ -113,7 +128,9 @@ public class WebcamFrame extends JFrame {
 	}
 }
 
-//represents a class that can take each Mat captured to buffered images for analysis
+/* Class that can convert each Mat captured to buffered 
+ * images for analysis
+ */
 class CVPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private BufferedImage image;
@@ -152,18 +169,5 @@ class CVPanel extends JPanel {
 			return;
 		g.drawImage(this.image, 10, 10, this.image.getWidth(),
 				this.image.getHeight(), null);
-	}
-}
-
-//helper to generate Mat images to gray scale
-class BinaryImageHelper extends CVPanel {
-	private static final long serialVersionUID = 1L;
-	
-	public static boolean imageToBinaryScale(Mat matBGR) {
-		Imgproc.GaussianBlur(matBGR, matBGR, new Size(3,3), 4);
-		Imgproc.threshold(matBGR, matBGR, 30, 255, 
-				Imgproc.THRESH_BINARY_INV);
-		
-		return true;
 	}
 }

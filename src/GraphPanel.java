@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.JComponent;
@@ -16,20 +18,19 @@ import org.opencv.core.Rect;
 
 
 public class GraphPanel {
-	Coord3d[] points;
+	ArrayList<Coord3d> points;
 	Scatter scatter;
 	long start;
 	
-	public GraphPanel(Coord3d[] points) {
-		this.points = points;
-		scatter = new Scatter(points);
-		scatter.setColor(Color.MAGENTA);
-		
+	public GraphPanel() {
+		points = new ArrayList<Coord3d>();
 		start = new Date().getTime();
 	}
 	
-	public void setPoints(Coord3d[] newPoints) {
-		scatter.setData(newPoints);
+	public void replot() {
+		Coord3d[] pointsArr = new Coord3d[points.size()];
+		points.toArray(pointsArr);
+		scatter.setData(pointsArr);
 	}
 	
 	public Coord3d[] convertRectsToCoord3d(Rect[] rects) {
@@ -46,8 +47,22 @@ public class GraphPanel {
 		return coordinates;
 	}
 	
+	public void addPoints(Coord3d[] newPoints) {
+		for(int i = 0; i < newPoints.length; i++) {
+			points.add(newPoints[i]);
+		}
+	}
+	
 	public Chart initChart() {
+		Coord3d[] pointsArr = new Coord3d[points.size()];
+		points.toArray(pointsArr);
+		
+		scatter = new Scatter(pointsArr);
+		scatter.setColor(Color.MAGENTA);
+		scatter.setWidth(2.5F);
+		
 		Chart chart = AWTChartComponentFactory.chart("newt");
+		chart.setViewPoint(new Coord3d(0.3, 0.3, 1000));
 		chart.getScene().add(scatter);
 		
 		return chart;
