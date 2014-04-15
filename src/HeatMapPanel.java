@@ -40,6 +40,7 @@ public class HeatMapPanel extends CVPanel {
 		this.cellHeight = (int) Math.floor(dimensionHeight / gridHeight);
 		this.heatFactor = heatFactor;
 		
+		//default to white cells
 		grid = new Color[gridWidth][gridHeight];
 		for(int i = 0; i < gridWidth; i++) {
 			for(int j = 0; j < gridHeight; j++) {
@@ -64,6 +65,9 @@ public class HeatMapPanel extends CVPanel {
 		return this.dimensionHeight;
 	}
 	
+	/*
+	 * set the grid back to white
+	 */
 	public void resetGrid() {
 		for(int i = 0; i < gridWidth; i++) {
 			for(int j = 0; j < gridHeight; j++) {
@@ -76,6 +80,9 @@ public class HeatMapPanel extends CVPanel {
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
+	/*
+	 * set the detected faces
+	 */
 	public void setDetectedFaces(Rect[] detectedFaces) {
 		this.detectedFaces = new ArrayList<Rect>(Arrays.asList(detectedFaces));
 	}
@@ -91,6 +98,7 @@ public class HeatMapPanel extends CVPanel {
 	public void paintComponent(Graphics g) {
 		if(detectedFaces == null) return;
 		
+		//paint cells with detected faces
 		for(int i = 0, size = detectedFaces.size(); i < size; i++) {
 			Rect face = detectedFaces.get(i);
 			Point center = new Point(face.x + face.width * 0.5, face.y
@@ -100,9 +108,10 @@ public class HeatMapPanel extends CVPanel {
 					(int)Math.floor(center.y));
 			if(entry == null) return;
 			
+			//empty? make white
 			if(entry.color == null) {
 				grid[entry.cellX][entry.cellY] = new Color(255, 255, 255);
-			} else {
+			} else { //not empty? make it a darker shade of the current color
 				grid[entry.cellX][entry.cellY] = getDarkerShade(entry.color);
 			}
 			
@@ -112,6 +121,9 @@ public class HeatMapPanel extends CVPanel {
 		}
 	}
 	
+	/*
+	 * return a darker shade of the color
+	 */
 	public Color getDarkerShade(Color color) {
 		int darkR = color.getRed() - heatFactor;
 		int darkG = color.getGreen() - heatFactor;

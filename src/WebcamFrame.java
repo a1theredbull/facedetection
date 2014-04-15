@@ -1,11 +1,12 @@
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,6 +30,8 @@ import org.opencv.imgproc.Imgproc;
  */
 
 public class WebcamFrame extends JFrame {
+	private static final long serialVersionUID = 1L;
+	
 	private JPanel contentPane;
 	private CVPanel dPanel;
 	private HeatMapPanel hPanel;
@@ -63,9 +66,17 @@ public class WebcamFrame extends JFrame {
 		setContentPane(contentPane);
 		getContentPane().setBackground(Color.WHITE);
 		
+		String decoded = "";
+		try {
+			decoded = URLDecoder.decode(WebcamFrame.class.getResource(
+					"resources/haarcascade_frontalface_alt.xml").getPath(), "UTF-8");
+			System.out.println(decoded);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		//initialize face detector engine
-		FaceDetector detector = new FaceDetector(
-				"C:/opencv/sources/data/haarcascades/haarcascade_frontalface_alt.xml");
+		FaceDetector detector = new FaceDetector(decoded.substring(1));
 		
 		//initialize webcam capture
 		Mat webcamImage = new Mat();
@@ -107,6 +118,7 @@ public class WebcamFrame extends JFrame {
 		JButton resetHeatMapButton = new JButton("RESET HEAT MAP");
 		bPanel.add(resetHeatMapButton);
 		resetHeatMapButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				hPanel.resetGrid();
 			}
@@ -115,6 +127,7 @@ public class WebcamFrame extends JFrame {
 		JButton plotGraph = new JButton("PLOT GRAPH");
 		bPanel.add(plotGraph);
 		plotGraph.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				contentPane.remove(3);
 				CanvasNewtAwt graphCanvas = (CanvasNewtAwt)
@@ -163,6 +176,7 @@ class CVPanel extends JPanel {
 		return true;
 	}
 	
+	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (this.image == null)

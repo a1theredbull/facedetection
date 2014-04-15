@@ -1,19 +1,11 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-
-import javax.swing.JComponent;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
-import org.jzy3d.colors.ColorMapper;
-import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.Scatter;
-import org.jzy3d.plot3d.primitives.ScatterMultiColor;
-import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
-import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.opencv.core.Rect;
 
 
@@ -40,8 +32,8 @@ public class GraphPanel {
 			long now = new Date().getTime();
 			double timePassed = (double)(now - start) / (double)1000;
 			
-			coordinates[i] = new Coord3d((float)rects[i].x, 
-					(float)rects[i].y, (float)timePassed);
+			coordinates[i] = new Coord3d(rects[i].x, 
+					rects[i].y, (float)timePassed);
 		}
 		
 		return coordinates;
@@ -62,7 +54,7 @@ public class GraphPanel {
 		scatter.setWidth(2.5F);
 		
 		Chart chart = AWTChartComponentFactory.chart("newt");
-		chart.setViewPoint(new Coord3d(0.3, 0.3, 1000));
+		chart.setViewPoint(new Coord3d(0.25, 0.25, 1000));
 		chart.getScene().add(scatter);
 		
 		return chart;
