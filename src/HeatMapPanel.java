@@ -87,7 +87,9 @@ public class HeatMapPanel extends CVPanel {
 		this.detectedFaces = new ArrayList<Rect>(Arrays.asList(detectedFaces));
 	}
 	
-	//find the closest cell to a point
+	/*
+	 * find the closest cell to a point
+	 */
 	private HeatEntry getClosestCellColor(int x, int y) {
 		int cellX = x / cellWidth;
 		int cellY = y / cellHeight;

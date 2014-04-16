@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -31,6 +34,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class WebcamFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
+	private static final String LIB_BIN = "/lib-bin/";
 	
 	private JPanel contentPane;
 	private CVPanel dPanel;
@@ -40,9 +44,15 @@ public class WebcamFrame extends JFrame {
 	
 	private Rect[] rects;
 	
+	static {
+		try {
+			System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		} catch(Exception e) {
+			System.err.println("no opencv dll found");
+		}
+	}
+	
 	public static void main(String[] args) {
-		System.loadLibrary("opencv_java248");
-		
 		//initialize swing components
 		WebcamFrame frame = new WebcamFrame("CIS 365 Detection");
 		return;

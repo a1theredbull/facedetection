@@ -19,12 +19,18 @@ public class GraphPanel {
 		start = new Date().getTime();
 	}
 	
+	/*
+	 * reset the scatter plot data
+	 */
 	public void replot() {
 		Coord3d[] pointsArr = new Coord3d[points.size()];
 		points.toArray(pointsArr);
 		scatter.setData(pointsArr);
 	}
 	
+	/*
+	 * convert the detected rects(faces) to 3d points
+	 */
 	public Coord3d[] convertRectsToCoord3d(Rect[] rects) {
 		Coord3d[] coordinates = new Coord3d[rects.length];
 		
@@ -39,12 +45,18 @@ public class GraphPanel {
 		return coordinates;
 	}
 	
+	/*
+	 * add points to the scatter plot
+	 */
 	public void addPoints(Coord3d[] newPoints) {
 		for(int i = 0; i < newPoints.length; i++) {
 			points.add(newPoints[i]);
 		}
 	}
 	
+	/*
+	 * initialize the scatter plot
+	 */
 	public Chart initChart() {
 		Coord3d[] pointsArr = new Coord3d[points.size()];
 		points.toArray(pointsArr);
