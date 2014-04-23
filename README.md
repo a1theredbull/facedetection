@@ -11,6 +11,7 @@ same area.
 ### Scatter Plot
 
 JZY3D scatter plot that graphs location(x, y) and time(z).
+Also applies K-means to detect likely clusters!
 
 ### Dependencies
 

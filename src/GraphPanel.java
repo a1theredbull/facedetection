@@ -1,11 +1,18 @@
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+import kmeans.Cluster;
+import kmeans.KMeans;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
-import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.Scatter;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.opencv.core.Rect;
 
 
@@ -13,10 +20,12 @@ public class GraphPanel {
 	ArrayList<Coord3d> points;
 	Scatter scatter;
 	long start;
+	int maxDetectedFaces;
 	
 	public GraphPanel() {
 		points = new ArrayList<Coord3d>();
 		start = new Date().getTime();
+		maxDetectedFaces = 0;
 	}
 	
 	/*
@@ -61,14 +70,49 @@ public class GraphPanel {
 		Coord3d[] pointsArr = new Coord3d[points.size()];
 		points.toArray(pointsArr);
 		
-		scatter = new Scatter(pointsArr);
-		scatter.setColor(Color.MAGENTA);
-		scatter.setWidth(2.5F);
+		List<Cluster> clusters = assignClusters(pointsArr);
+		if(clusters != null) {
+			Color[] colors = new Color[pointsArr.length];
+		
+			Coord3d[] coloredPoints = new Coord3d[pointsArr.length];
+		
+			int counter = 0;
+			for(int i = 0, size = clusters.size(); i < size; i++) {
+				Color color = Color.random();
+				for(int j = 0, pSize = clusters.get(i).getPoints().size(); j < pSize; j++) {
+					colors[counter] = color;
+					coloredPoints[counter] = clusters.get(i).getPoints().get(j);
+					counter++;
+				}
+			}
+			
+			scatter = new Scatter(coloredPoints, colors);
+		} else {
+			scatter = new Scatter(pointsArr);
+		}
+		
+		scatter.setWidth(4F);
 		
 		Chart chart = AWTChartComponentFactory.chart("newt");
-		chart.setViewPoint(new Coord3d(0.25, 0.25, 1000));
+		chart.setViewPoint(new Coord3d(0.3, 0.3, 1000));
 		chart.getScene().add(scatter);
 		
+		points = new ArrayList<Coord3d>();
 		return chart;
+	}
+	
+	private List<Cluster> assignClusters(Coord3d[] coords) {
+		if(maxDetectedFaces < 2) {
+			return null;
+		}
+		
+		KMeans kMeans = new KMeans(coords, maxDetectedFaces);
+		return kMeans.getPointsClusters();
+	}
+	
+	public void setMaxDetectedFaces(int detectedFaces) {
+		if(detectedFaces > maxDetectedFaces) {
+			maxDetectedFaces = detectedFaces;
+		}
 	}
 }

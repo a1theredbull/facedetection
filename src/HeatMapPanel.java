@@ -97,6 +97,7 @@ public class HeatMapPanel extends CVPanel {
 		return new HeatEntry(grid[cellX][cellY], cellX, cellY);
 	}
 	
+	@Override
 	public void paintComponent(Graphics g) {
 		if(detectedFaces == null) return;
 		

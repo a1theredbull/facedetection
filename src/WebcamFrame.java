@@ -5,9 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -34,7 +32,6 @@ import org.opencv.imgproc.Imgproc;
 
 public class WebcamFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
-	private static final String LIB_BIN = "/lib-bin/";
 	
 	private JPanel contentPane;
 	private CVPanel dPanel;
@@ -53,12 +50,18 @@ public class WebcamFrame extends JFrame {
 	}
 	
 	public static void main(String[] args) {
+		/*if(args.length < 1) {
+			System.out.println("Please specify a haarcascade file.");
+			return;
+		}*/
+		
 		//initialize swing components
-		WebcamFrame frame = new WebcamFrame("CIS 365 Detection");
+		WebcamFrame frame = new WebcamFrame("CIS 365 Detection",
+				"resources/haarcascade_frontalface_alt.xml");
 		return;
 	}
 	
-	public WebcamFrame(String title) {
+	public WebcamFrame(String title, String cascade) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		dPanel = new CVPanel();
@@ -78,15 +81,15 @@ public class WebcamFrame extends JFrame {
 		
 		String decoded = "";
 		try {
-			decoded = URLDecoder.decode(WebcamFrame.class.getResource(
-					"resources/haarcascade_frontalface_alt.xml").getPath(), "UTF-8");
-			System.out.println(decoded);
+			decoded = URLDecoder.decode(
+					WebcamFrame.class.getResource(cascade).getPath(), "UTF-8")
+					.substring(1);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		
 		//initialize face detector engine
-		FaceDetector detector = new FaceDetector(decoded.substring(1));
+		FaceDetector detector = new FaceDetector(decoded);
 		
 		//initialize webcam capture
 		Mat webcamImage = new Mat();
@@ -113,6 +116,7 @@ public class WebcamFrame extends JFrame {
 					hPanel.paintComponent(hPanel.getGraphics());
 					
 					Coord3d[] points = gPanel.convertRectsToCoord3d(rects);
+					gPanel.setMaxDetectedFaces(rects.length);
 					gPanel.addPoints(points);
 				} else {
 					System.out.println("Can't find captured frame.");
